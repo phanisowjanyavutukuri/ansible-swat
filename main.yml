@@ -1,0 +1,11 @@
+---
+- hosts: webserver
+  vars:
+    host_key_checking: false
+  become: yes
+  roles: 
+    - tools
+    - certs
+    - config
+    - services
+

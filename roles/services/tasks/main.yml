@@ -1,0 +1,19 @@
+---
+- name: creating required directories 
+  command: mkdir -p  /var/lib/kubelet  /var/lib/kube-proxy  /var/lib/kubernetes  /var/run/kubernetes
+  args:
+    chdir: /home/ubuntu/certs/
+- name: moving the files to required folders
+  script: kubeletconfig.sh
+  args:
+    chdir: /home/ubuntu/certs/
+- name: creating the kubelet service
+  script: kubeletservice.sh
+  notify: restart kubelet
+- name: creating kube-proxy service
+  script: kube-proxyconfig.sh
+  args:
+    chdir: /home/ubuntu/certs/
+  notify: restart kube-proxy
+    
+  

@@ -1,0 +1,89 @@
+---
+# downloading the cfssl
+
+  - stat: path=/home/ubuntu/cfssl_linux-amd64
+    register: cfssl
+
+  - name: install cfssl
+    get_url:
+      url: https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+      dest: /home/ubuntu/
+      force: yes
+      mode: 777
+    when: cfssl.stat.exists == false
+
+  - stat: path=/home/ubuntu/cfssljson_linux-amd64
+    register: cfssljson
+    
+  - name: install cfssl json
+    get_url: 
+      url: https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+      dest: /home/ubuntu/
+      force: yes
+      mode: 777
+    when: cfssljson.stat.exists == false
+
+  - name: moving cfssljson to /usr/local/bin/  
+    command: "mv cfssl_linux-amd64 /usr/local/bin/cfssl"
+
+  - name: moving the cfssl binaries to /usr/local/bin/
+    command : "mv cfssljson_linux-amd64 /usr/local/bin/cfssljson"
+    
+   
+# downloading the kubernetes binaries  
+  
+  - stat: path=/home/ubuntu/kubernetes
+    register: kubernetes
+
+  - name: install kubernetes binaries
+    unarchive:
+      src:  https://github.com/kubernetes/kubernetes/releases/download/v1.13.3/kubernetes.tar.gz
+      dest: /home/ubuntu/
+      remote_src: yes
+    when: kubernetes.stat.exists == false
+
+  - name: Running the get-kube-binaries.sh
+    git:
+      repo: https://github.com/phanisowjanyavutukuri/swat-2.git
+      dest: /home/ubuntu/swat-2
+      force: yes
+
+  - name: mv  
+    shell: mv get-kube-binaries.sh /home/ubuntu/kubernetes/cluster/ 
+    args: 
+      chdir: /home/ubuntu/swat-2
+
+  - name: shell
+    shell: /bin/bash get-kube-binaries.sh
+    args:
+      chdir: /home/ubuntu/kubernetes/cluster/
+  - name: unarchieve the files
+    unarchive:
+      src: /home/ubuntu/kubernetes/server/kubernetes-server-linux-amd64.tar.gz
+      dest: /home/ubuntu/kubernetes/server/
+      remote_src: yes
+
+# moving the binaries to /usr/local/bin/
+
+  - name: moving the binaries to /usr/local/bin/
+    command:  "mv {{ item }}"
+    with_items:
+    - kubectl /usr/local/bin/
+    - kube-proxy /usr/local/bin/
+    - kubelet /usr/local/bin/
+    - kube-apiserver /usr/local/bin/
+    - kube-controller-manager /usr/local/bin/
+    - kube-scheduler /usr/local/bin/
+    
+    args:
+      chdir: /home/ubuntu/kubernetes/server/kubernetes/server/bin
+    tags:
+      moving
+  - name: installing docker
+    script: docker.sh
+    notify: start docker
+
+
+
+
+

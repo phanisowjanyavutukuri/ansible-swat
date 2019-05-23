@@ -1,0 +1,25 @@
+---
+- stat: path=/home/ubuntu/certs
+  register: certs
+- name: creating the certs directory
+  file:
+    path: /home/ubuntu/certs
+    state: directory
+  when: certs.stat.exists == false
+- name: downloading ca files
+  git: 
+    repo: https://github.com/phanisowjanyavutukuri/swat-2.git
+    version: ca
+    dest: /home/ubuntu/certs/
+    force: yes   
+- name: creating kubelet.json
+  script:  kubelet.sh $HOSTNAME
+  args: 
+    chdir: /home/ubuntu/certs
+- name: creating kube-proxy certs
+  script: kube-proxy.sh 
+  args:
+    chdir: /home/ubuntu/certs/
+  
+
+  

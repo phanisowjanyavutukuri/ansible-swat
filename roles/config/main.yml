@@ -1,0 +1,9 @@
+---
+- name: kubelet configuration file creation
+  script: kubeconfig.sh 
+  args:
+    chdir: /home/ubuntu/certs/
+- name: kube-proxy configuration file creation
+  script: kube-proxyconfig.sh
+  args:
+    chdir: /home/ubuntu/certs/
